@@ -2,7 +2,7 @@
 
 Agents cannot do these: they need keys, USDC, accounts or publishing. Commands are in [README.md](README.md#deploy-owner-only).
 DoD for the whole list: ArcPet verified on Sourcify, the D17 demo tx hashes in the README and
-`deployments/arc-mainnet.json`, a live site, and a showcase section in the ArcDraw submission.
+`deployments/arc-mainnet.json`, a live site, and the ArcPet BUIDL submitted on DoraHacks.
 
 | # | Step | Needs | Done when |
 |---|---|---|---|
@@ -19,4 +19,6 @@ DoD for the whole list: ArcPet verified on Sourcify, the D17 demo tx hashes in t
 | 11 | Demo: B buries C's pet (permissionless bury) | Wallet B | `bury` tx from B; pet shows Buried in the graveyard |
 | 12 | Fill every tx hash in `deployments/arc-mainnet.json` (`demo.*`) and the README tables; replace every `TBD` | Explorer | `grep -n TBD README.md` is empty |
 | 13 | Create the GitHub repo `r4topunk/arcpet`, push, enable Pages (source: GitHub Actions); optionally set repo variable `NEXT_PUBLIC_ARCPET_ADDRESS` | GitHub account | `https://r4topunk.github.io/arcpet/` and `/arcpet/app/` load and show the live pets |
-| 14 | Add an "ArcPet: production consumer" section to the ArcDraw submission (`arc-randomness/SUBMISSION.md` + DoraHacks): contract address, repo, site, the fulfill and claimGenes/bury tx hashes | DoraHacks account | Section visible in the submission before the deadline |
+| 14 | Submit the ArcPet BUIDL on DoraHacks (see [SUBMISSION.md](SUBMISSION.md)). This can be done before the bury tx (step 11): the proof table links the README demo table as the live source of hashes. The form keeps no draft; dropdown selections linger, so re-check them | DoraHacks account | BUIDL visible on the Arc Microgrants page before 2026-10-14 23:59 ET |
+| 15 | Follow-up after step 11: paste the bury tx hash into the BUIDL (proof #6), if DoraHacks allows editing a submitted BUIDL | DoraHacks account | BUIDL shows the bury hash, or the README demo table has it if editing is not allowed |
+| 16 | Mention ArcPet as a consumer in the ArcDraw README (optional) | GitHub account | ArcDraw README links the ArcPet repo and contract |

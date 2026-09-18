@@ -21,8 +21,17 @@ const dep = JSON.parse(readFileSync(DEPLOY, 'utf8'));
 const arcPet = dep.contracts.ArcPet.address;
 const transport = http(dep.rpc);
 const pub = createPublicClient({ chain: arcMainnet, transport });
-const wallet = (k) => createWalletClient({ account: privateKeyToAccount(process.env[k].startsWith('0x') ? process.env[k] : `0x${process.env[k]}`), chain: arcMainnet, transport });
-const W = { main: wallet('PRIVATE_KEY'), B: wallet('WALLET_B_PRIVATE_KEY'), C: wallet('WALLET_C_PRIVATE_KEY') };
+const wallet = (k) =>
+  createWalletClient({
+    account: privateKeyToAccount(process.env[k].startsWith('0x') ? process.env[k] : `0x${process.env[k]}`),
+    chain: arcMainnet,
+    transport,
+  });
+const W = {
+  main: wallet('PRIVATE_KEY'),
+  B: wallet('WALLET_B_PRIVATE_KEY'),
+  C: wallet('WALLET_C_PRIVATE_KEY'),
+};
 const NAMES = { main: 'Arcturus', B: 'Bolt', C: 'Cinder' };
 const log = (...a) => console.log('[demo]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -34,8 +43,17 @@ const wait = async (hash) => {
 
 const eggs = {};
 for (const k of ['main', 'B', 'C']) {
-  const existing = await pub.readContract({ address: arcPet, abi: arcPetAbi, functionName: 'petOf', args: [W[k].account.address] });
-  if (existing !== 0n) { log(k, 'already has pet', existing, '- skipping hatch'); eggs[k] = { id: existing }; continue; }
+  const existing = await pub.readContract({
+    address: arcPet,
+    abi: arcPetAbi,
+    functionName: 'petOf',
+    args: [W[k].account.address],
+  });
+  if (existing !== 0n) {
+    log(k, 'already has pet', existing, '- skipping hatch');
+    eggs[k] = { id: existing };
+    continue;
+  }
   const { hash, egg } = await hatch(pub, W[k], { arcPet, name: NAMES[k] });
   log(k, 'hatch', hash, 'id', egg.id, 'request', egg.requestId, 'round', egg.round);
   eggs[k] = { ...egg, hash };
@@ -74,5 +92,8 @@ writeFileSync(DEPLOY, `${JSON.stringify(dep, null, 2)}\n`);
 
 for (const k of ['main', 'B', 'C']) {
   const p = await readPet(pub, { arcPet, id: eggs[k].id });
-  log(k, `id=${p.id} name=${p.name} status=${p.status} species=${p.species} deathAt=${new Date(Number(p.deathAt) * 1000).toISOString()}`);
+  log(
+    k,
+    `id=${p.id} name=${p.name} status=${p.status} species=${p.species} deathAt=${new Date(Number(p.deathAt) * 1000).toISOString()}`,
+  );
 }

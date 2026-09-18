@@ -1,7 +1,7 @@
 # ArcPet
 
 An onchain tamagotchi on [Arc](https://arc.io). Hatch a pet whose genes are drawn by
-[ArcDraw](https://github.com/r4topunk/arc-randomness) (drand quicknet, BLS-verified onchain), keep it fed and happy,
+[ArcDraw](https://github.com/r4topunk/arcdraw) (drand quicknet, BLS-verified onchain), keep it fed and happy,
 and if nobody cares for it, it dies for good and becomes a tombstone with its age frozen.
 
 - Soulbound ERC-721, free to hatch, one living pet (or egg) per wallet.
@@ -9,8 +9,8 @@ and if nobody cares for it, it dies for good and becomes a tombstone with its ag
 - No keeper, no owner, no USDC in the contract. Players pay their own gas (~0.045 USDC/month per pet).
 - Production consumer of ArcDraw.
 
-Status: contract, renderer, SDK and web app built and tested. **Mainnet deployment pending** (see
-[CHECKLIST.md](CHECKLIST.md)). Behaviour spec: [docs/SPEC.md](docs/SPEC.md). Threat model: [docs/THREATS.md](docs/THREATS.md).
+Status: **live on Arc mainnet** at [`0xe61E479900E9D7e1BF67C69a81f1c91419Fd897d`](https://explorer.arc.io/address/0xe61E479900E9D7e1BF67C69a81f1c91419Fd897d)
+(Sourcify exact match). App: https://r4topunk.github.io/arcpet/app/. Remaining demo step in [CHECKLIST.md](CHECKLIST.md). Behaviour spec: [docs/SPEC.md](docs/SPEC.md). Threat model: [docs/THREATS.md](docs/THREATS.md).
 
 ## How it works
 
@@ -101,6 +101,8 @@ from the JSON, or from `NEXT_PUBLIC_ARCPET_ADDRESS`).
 | Hatch pet B ("Bolt", #2) | [`0x59395db2…`](https://explorer.arc.io/tx/0x59395db2dbc424ff3b82e1fc8eb7969002336637d49b07aaf12d29cf8c5b5694) |
 | Hatch pet C ("Cinder", #3) | [`0xa4958dae…`](https://explorer.arc.io/tx/0xa4958dae7f5a30af308421cbca6ff0f040574cf19a65f4b36515e1638168dd4b) |
 | Fulfill via ArcDraw (drand quicknet, callback hatches #1) | [`0xc25b2caf…`](https://explorer.arc.io/tx/0xc25b2cafacdd289896af039e4bb2e560107167d4b73080e2a7373121fbf5922f) |
+| Fulfill via ArcDraw (callback hatches #2) | [`0x697b20ff…`](https://explorer.arc.io/tx/0x697b20fff22e953cc0415926001ab1b9cb7a5adecd5a322214ec80c94452b2be) |
+| Fulfill via ArcDraw (callback hatches #3) | [`0x4107f040…`](https://explorer.arc.io/tx/0x4107f04036f3c99ddd738e3a0594fc063fbb2dde114e0ca20a55812fe047c7e8) |
 | B feeds C's pet (social care) | [`0x88d6128b…`](https://explorer.arc.io/tx/0x88d6128b3da61e5f87cc18ca9cf197985d89d425c20f51a6fa3140f6feb0d6e7) |
 | C's pet dies, B buries it | `TBD` |
 

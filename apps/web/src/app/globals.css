@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/*
+  ArcPet app: same clean white template as the sibling Arc apps (hairlines before shadows, one accent used as a mark),
+  with a warm accent and mono numerals for the pet stats.
+*/
+:root {
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f4f3f8;
+  --foreground: #1d1b26;
+  --muted: #5d5a6b;
+  --faint: #908ca0;
+  --hairline: #ecebf2;
+  --hairline-strong: #dedce8;
+  --accent: #6d4fd8;
+  --accent-soft: #eee9fc;
+  --accent-ink: #ffffff;
+  --ok: #23734a;
+  --ok-soft: #e4f2ea;
+  --warn: #94560f;
+  --warn-soft: #f8eedf;
+  --danger: #ae3d36;
+  --danger-soft: #f8e6e4;
+  --ring: #6d4fd8;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ring: var(--ring);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--hairline);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background: var(--accent-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}

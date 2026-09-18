@@ -1,0 +1,63 @@
+{
+  "name": "@arcpet/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for ArcPet: pet state math, Zod types, multicall reads, hatch/fulfill flow and .ics reminders",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "keywords": [
+    "arc",
+    "arcdraw",
+    "drand",
+    "tamagotchi",
+    "nft",
+    "viem"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/r4topunk/arcpet",
+    "directory": "packages/sdk"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src test scripts",
+    "format": "biome check --write src test scripts",
+    "generate:abi": "node scripts/generate-abi.mjs",
+    "check:abi": "node scripts/generate-abi.mjs --check",
+    "check:vendor": "node scripts/check-vendor.mjs",
+    "e2e:anvil": "pnpm build && node scripts/e2e-anvil.mjs"
+  },
+  "peerDependencies": {
+    "viem": "^2.56.0"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@types/node": "^24.13.5",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "viem": "^2.56.7",
+    "vitest": "^4.1.11"
+  }
+}

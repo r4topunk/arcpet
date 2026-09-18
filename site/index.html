@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ArcPet: keep something alive</title>
+<meta name="description" content="An onchain tamagotchi on Arc. Genes from drand, verified onchain by ArcDraw. If nobody feeds it, it dies. Forever.">
+<meta property="og:title" content="ArcPet: keep something alive">
+<meta property="og:description" content="An onchain tamagotchi on Arc. If nobody feeds it, it dies. Forever.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://r4topunk.github.io/arcpet/">
+<meta property="og:image" content="https://r4topunk.github.io/arcpet/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ArcPet: keep something alive. An onchain tamagotchi on Arc.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ArcPet: keep something alive">
+<meta name="twitter:description" content="An onchain tamagotchi on Arc. If nobody feeds it, it dies. Forever.">
+<meta name="twitter:image" content="https://r4topunk.github.io/arcpet/og.png">
+<meta name="theme-color" content="#0d0c10">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'><rect width='12' height='12' rx='3' fill='%230d0c10'/><path d='M4 2h4v1h2v1h1v5h-1v1h-8v-1h-1v-5h1v-1h2z' fill='%23f5d94e'/><path d='M4 5h1v1h-1zM7 5h1v1h-1zM5 7h2v1h-2z' fill='%230d0c10'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0d0c10; --bg-deep:#09080b; --panel:#15141a; --stage:#121117; --chip:#1d1c23;
+  --line:#25232b; --line-2:#2f2c36; --line-3:#3a3742;
+  --ink:#efeae0; --ink-2:#c9c3b8; --muted:#a39d92; --faint:#6f6a62; --ghost:#4a4652;
+  --yellow:#f5d94e; --pink:#f59ac5; --orange:#e0703f; --magenta:#d05893; --blue:#7fb8f0; --green:#7fd6a8; --red:#e08080;
+  --wide:'Archivo',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --pad:72px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--wide);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+a:hover{color:var(--yellow)}
+:focus-visible{outline:2px solid var(--yellow);outline-offset:3px;border-radius:4px}
+p,h1,h2,h3{margin:0}
+svg{display:block}
+.wide{font-family:var(--wide);font-stretch:125%;font-weight:800;text-transform:uppercase}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:var(--pad)}
+.kicker{font-family:var(--mono);font-size:13px;color:var(--yellow)}
+.h2{font-size:clamp(40px,5.3vw,76px);line-height:.9}
+.lede{font-size:19px;line-height:1.55;color:var(--muted);max-width:34ch}
+.sec{padding-block:120px;border-top:1px solid var(--line)}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:48px;margin-bottom:64px}
+.sec-head>div{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:60px;padding:0 28px;border-radius:10px;font-family:var(--mono);font-size:16px;font-weight:600;text-decoration:none;white-space:nowrap}
+.btn.primary{background:var(--yellow);color:var(--bg)}
+.btn.primary:hover{background:#ffe57a;color:var(--bg)}
+.btn.ghost{border:1px solid var(--line-3);font-weight:500}
+.btn.ghost:hover{border-color:var(--muted);color:var(--ink)}
+
+/* nav */
+.nav{display:flex;justify-content:space-between;align-items:center;padding-block:28px;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;text-decoration:none;letter-spacing:.02em}
+.nav-links{display:flex;gap:28px;align-items:center;font-family:var(--mono);font-size:14px}
+.nav-links a{text-decoration:none;color:var(--muted)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links .open{background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:8px;font-weight:500}
+.nav-links .open:hover{background:var(--yellow);color:var(--bg)}
+.langs{display:inline-flex;padding:3px;border:1px solid var(--line-2);border-radius:8px;gap:2px}
+.langs button{border:0;background:transparent;color:var(--faint);padding:6px 10px;font-family:var(--mono);font-size:12px;border-radius:5px;cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--chip);color:var(--ink)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 600px;gap:56px;align-items:center;padding-block:40px 120px}
+.hero-copy{min-width:0;display:flex;flex-direction:column;gap:34px}
+.pill{display:inline-flex;align-self:flex-start;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:8px 14px}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.hero h1{font-size:clamp(40px,5.3vw,76px);line-height:.9;letter-spacing:-.01em}
+.hero h1 span{color:var(--yellow)}
+.hero-sub{font-size:22px;line-height:1.45;color:var(--ink-2);max-width:28ch}
+.ctas{display:flex;gap:12px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;border-top:1px solid var(--line);padding-top:28px;margin-top:8px}
+.stats b{display:block;font-size:34px;line-height:1;margin-bottom:6px}
+.stats span{font-family:var(--mono);font-size:12px;line-height:1.4;color:var(--muted)}
+.hero-play{display:flex;flex-direction:column;align-items:center;gap:24px}
+.stage{position:relative;width:600px;height:620px;display:flex;justify-content:center;align-items:center}
+.stage .disc{position:absolute;width:560px;height:560px;border-radius:50%;background:var(--stage);border:1px solid var(--line)}
+.stage .orbit{position:absolute;width:440px;height:440px;border-radius:50%;border:1px dashed var(--line)}
+.float{position:absolute;display:flex;flex-direction:column;align-items:center;gap:8px}
+.float .tile{width:84px;height:84px;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 32px rgba(0,0,0,.45)}
+.float em{font-style:normal;font-family:var(--mono);font-size:11px;background:var(--chip);border-radius:6px;padding:4px 8px}
+.f1{left:6px;top:96px;transform:rotate(-8deg)} .f1 em{color:var(--pink)}
+.f2{right:4px;top:330px;transform:rotate(7deg)} .f2 em{color:var(--yellow)}
+.hint{position:absolute;right:8px;top:40px;font-family:var(--mono);font-size:12px;color:var(--yellow)}
+.device{position:relative;width:400px;height:500px;padding-top:58px;display:flex;flex-direction:column;align-items:center;gap:30px;background:#22202a;border:1px solid var(--line-3);border-radius:200px 200px 180px 180px/240px 240px 160px 160px;box-shadow:inset 0 2px 0 rgba(255,255,255,.07),inset 0 -24px 48px rgba(0,0,0,.35),0 40px 80px rgba(0,0,0,.55),0 0 140px var(--glow,rgba(245,217,78,.1));transition:box-shadow .5s}
+.device .ringhole{position:absolute;top:-26px;width:34px;height:34px;border-radius:50%;border:6px solid var(--line-3)}
+.device .label{font-size:10px;letter-spacing:.3em;color:var(--faint)}
+.bezel{background:var(--bg);border-radius:26px;padding:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.6)}
+.lcd{position:relative;width:244px;height:220px;border-radius:14px;color:#1b1a17;display:flex;flex-direction:column;justify-content:space-between;padding:12px 14px;transition:background .4s}
+.lcd::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;background-image:linear-gradient(rgba(0,0,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px);background-size:4px 4px}
+.lcd-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;font-weight:600}
+.lcd-pet{display:flex;justify-content:center}
+.lcd-status{font-family:var(--mono);font-size:10px;font-weight:600;text-align:center;margin-bottom:6px}
+.bars{display:flex;gap:10px}
+.bar{flex:1;height:8px;background:rgba(27,26,23,.12);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;transition:width .45s linear}
+.keys{display:flex;gap:26px}
+.key{display:flex;flex-direction:column;align-items:center;gap:10px}
+.key button{width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;transition:transform .08s,box-shadow .08s}
+.key button:active{transform:translateY(3px)}
+.key span{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.log{width:520px;max-width:100%;font-family:var(--mono);font-size:12px;overflow:hidden;border-radius:14px}
+.log-head{display:flex;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);color:var(--faint)}
+.log ol{list-style:none;margin:0;padding:8px 0;min-height:140px}
+.log li{display:grid;grid-template-columns:minmax(0,1fr) 72px 104px;gap:12px;padding:5px 16px}
+.log li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log li .g{color:var(--faint);text-align:right}
+.log li .c{text-align:right}
+.note{font-family:var(--mono);font-size:11px;color:var(--faint);text-align:center}
+
+/* pipeline + decoder */
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.step{position:relative;padding:28px;display:flex;flex-direction:column;gap:22px;min-height:250px}
+.step-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--faint)}
+.step-top b{font-weight:400;color:var(--yellow)}
+.step .art{height:96px;display:flex;align-items:center}
+.step h3{font-size:22px;line-height:1}
+.step p{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:6px}
+.step .arrow{position:absolute;right:-14px;top:50%;z-index:1;width:26px;height:26px;margin-top:-13px;border-radius:50%;background:var(--bg);border:1px solid var(--line-3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--yellow)}
+.beacon{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center}
+.beacon i{position:absolute;width:60px;height:60px;border-radius:50%;border:2px solid var(--blue);animation:pulse 2.4s ease-out infinite}
+.beacon i+i{animation-delay:1.2s}
+.beacon b{width:22px;height:22px;border-radius:50%;background:var(--blue);box-shadow:0 0 24px var(--blue)}
+.decoder{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.dec-bytes{padding:36px;display:flex;flex-direction:column;gap:28px}
+.dec-head{display:flex;justify-content:space-between;align-items:center;gap:16px;font-family:var(--mono);font-size:13px;color:var(--faint)}
+.roll{min-height:44px;padding:0 20px;border:0;border-radius:10px;background:var(--yellow);color:var(--bg);font-family:var(--mono);font-size:14px;font-weight:600;cursor:pointer}
+.roll:hover{background:#ffe57a}
+.hex{font-family:var(--mono);font-size:24px;line-height:1.55;letter-spacing:.04em;word-break:break-all}
+.hex .d{color:var(--ghost)} .hex .p{color:var(--magenta);background:rgba(208,88,147,.14)} .hex .h{color:var(--orange);background:rgba(224,112,63,.14)} .hex .l{color:var(--yellow);background:rgba(245,217,78,.14)}
+.bits{display:grid;grid-template-columns:1fr 2fr 3fr 2fr;gap:8px}
+.bits div{display:flex;flex-direction:column;gap:8px}
+.bits b{font-family:var(--mono);font-weight:400;font-size:22px;letter-spacing:.3em;text-align:center;padding:10px 0;border-radius:8px;background:rgba(245,217,78,.14);color:var(--yellow)}
+.bits div:first-child b{background:#1d1c23;color:var(--ghost)}
+.bits span{font-family:var(--mono);font-size:11px;color:var(--faint);text-align:center}
+.dec-foot{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.dec-pet{padding:36px;display:flex;gap:28px;align-items:center}
+.dec-pet .big{width:180px;height:180px;flex-shrink:0;border-radius:24px;display:flex;align-items:center;justify-content:center;transition:background .3s}
+.traits{flex:1;font-family:var(--mono);font-size:14px;margin:0;min-width:0}
+.traits div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.traits dt{color:var(--faint)} .traits dd{margin:0;text-align:right}
+
+/* life */
+.formula{font-family:var(--mono);font-size:17px;padding:18px 22px;border-radius:12px}
+.stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:64px}
+.stage-i{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.stage-i .row{display:flex;align-items:center;width:100%}
+.stage-i .sq{width:128px;height:128px;border-radius:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stage-i .ln{flex:1;height:2px;margin:0 16px;background:var(--line-3)}
+.stage-i:last-child .ln{background:transparent}
+.stage-i h3{font-size:26px}
+.stage-i code{font-family:var(--mono);font-size:13px;color:var(--yellow);background:rgba(245,217,78,.08);border-radius:6px;padding:6px 10px}
+.stage-i p{font-family:var(--mono);font-size:13px;color:var(--muted);max-width:24ch;line-height:1.5}
+.chart{padding:32px 36px 24px}
+.chart-head{display:flex;justify-content:space-between;gap:16px;font-family:var(--mono);font-size:12px;color:var(--faint);margin-bottom:12px}
+.chart svg{width:100%;height:auto}
+
+/* why */
+.why{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.why .panel{padding:32px 28px;display:flex;flex-direction:column;gap:14px;min-height:300px}
+.why small{font-family:var(--mono);font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em}
+.why b{font-size:56px;line-height:1}
+.why .u{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.why p{margin-top:auto;font-size:17px;line-height:1.45}
+
+/* specimens */
+.spec-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:36px}
+.spec-head h2{font-size:36px}
+.spec-head p{font-family:var(--mono);font-size:13px;color:var(--faint)}
+.specimens{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px;padding-bottom:120px}
+.specimens div{aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.specimens div:hover{transform:translateY(-4px) scale(1.04)}
+.specimens svg{width:62%;height:auto}
+
+/* graveyard */
+.yard{background:var(--bg-deep);border-top:1px solid var(--line);padding-top:120px}
+.plots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px;align-items:end}
+.plot{display:flex;flex-direction:column;align-items:center;gap:14px;padding-bottom:24px;text-align:center;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--faint)}
+.plot svg{width:120px;max-width:100%;height:auto}
+.plot.taken{color:var(--ink)}
+.plot small{display:block;font-size:13px;color:var(--faint)}
+.ground{height:2px;background:var(--line-2);margin-bottom:80px}
+
+/* footer */
+.foot{padding-block:120px 56px;display:flex;flex-direction:column;gap:64px}
+.foot-cta{display:flex;justify-content:space-between;align-items:flex-end;gap:48px}
+.foot-cta h2{font-size:clamp(48px,7.8vw,112px);line-height:.86}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chips span{font-family:var(--mono);font-size:13px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:10px 16px}
+.foot-bar{display:flex;justify-content:space-between;gap:24px;font-family:var(--mono);font-size:13px;color:var(--faint);border-top:1px solid var(--line);padding-top:24px;flex-wrap:wrap}
+.foot-bar nav{display:flex;gap:24px;flex-wrap:wrap}
+.foot-bar a{color:var(--muted)}
+
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.bob{animation:bob 1.4s steps(2) infinite}
+.wob{animation:wob .5s steps(3) infinite}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+@media (min-width:1181px) and (max-width:1439px){
+  .hero{grid-template-columns:minmax(0,1fr) 480px}
+  .stage{zoom:.8}
+  .hero h1{font-size:min(76px,calc((100vw - 680px) * .105))}
+}
+@media (max-width:1180px){
+  :root{--pad:40px}
+  .hero{grid-template-columns:minmax(0,1fr);gap:64px}
+  .hero-play{order:2}
+  .pipe,.why{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .step:nth-child(2) .arrow{display:none}
+  .decoder{grid-template-columns:1fr}
+  .stages{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:48px}
+  .stage-i:nth-child(2) .ln{background:transparent}
+  .specimens{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .nav-links .txt{display:none}
+}
+@media (max-width:720px){
+  :root{--pad:16px}
+  .sec{padding-block:80px}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:20px;margin-bottom:40px}
+  .nav{padding-block:18px}
+  .nav-links{gap:10px}
+  .nav-links .open{padding:10px 12px}
+  .hero{padding-block:24px 80px;gap:40px}
+  .hero h1{font-size:10.4vw}
+  .hero-sub{font-size:19px}
+  .ctas .btn{flex:1}
+  .stats{gap:12px}
+  .stats b{font-size:24px}
+  .stats span{font-size:11px}
+  .stage{zoom:.58}
+  .log li{grid-template-columns:minmax(0,1fr) 88px;font-size:11px}
+  .log li .g{display:none}
+  .pipe{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .why{grid-template-columns:1fr}
+  .step .arrow{display:none}
+  .step{min-height:0;padding:18px;gap:14px;border-radius:16px}
+  .step .art{zoom:.66}
+  .step h3{font-size:16px}
+  .step p{font-size:11px}
+  .dec-bytes,.dec-pet{padding:24px}
+  .hex{font-size:16px}
+  .bits b{font-size:15px;letter-spacing:.15em}
+  .dec-pet{flex-direction:column;align-items:stretch}
+  .dec-pet .big{width:100%;height:200px}
+  .formula{font-size:13px;padding:14px 16px}
+  .stages{grid-template-columns:1fr 1fr;column-gap:16px}
+  .stage-i .sq{width:96px;height:96px}
+  .stage-i .ln{display:none}
+  .stage-i h3{font-size:20px}
+  .chart{padding:20px 0 12px 16px;overflow-x:auto}
+  .chart svg{width:760px;max-width:none}
+  .chart-head{padding-right:16px}
+  .chart-head{flex-direction:column;gap:4px}
+  .why .panel{min-height:0}
+  .why b{font-size:44px}
+  .spec-head{flex-direction:column;gap:8px}
+  .specimens{gap:8px;padding-bottom:80px}
+  .specimens div{border-radius:12px}
+  .yard{padding-top:80px}
+  .plots{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:8px}
+  .foot{padding-block:80px 40px;gap:48px}
+  .foot-cta{flex-direction:column;align-items:stretch;gap:32px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="nav">
+    <a class="brand wide" href="./"><span data-sprite="logo"></span>ArcPet</a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="txt" href="#born" data-i18n="navGenes">Genes</a>
+      <a class="txt" href="#life" data-i18n="navLife">Life</a>
+      <a class="txt" href="#arc" data-i18n="navArc">Why Arc</a>
+      <a class="txt" href="app/graveyard/" data-i18n="navGraveyard">Graveyard</a>
+      <div class="langs" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+      </div>
+      <a class="open" href="app/" data-i18n="navApp">Open app</a>
+    </nav>
+  </header>
+
+  <main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="pill"><i></i><span data-i18n="pill">Live on Arc mainnet · powered by ArcDraw</span></div>
+      <h1 class="wide" data-i18n="h1">Keep<br>something<br><span>alive.</span></h1>
+      <p class="hero-sub" data-i18n="sub">An onchain tamagotchi on Arc. If nobody feeds it, it dies. Forever.</p>
+      <div class="ctas">
+        <a class="btn primary" href="app/" data-i18n="ctaHatch">Hatch a pet</a>
+        <a class="btn ghost" href="#born" data-i18n="ctaHow">How it works</a>
+      </div>
+      <div class="stats">
+        <div><b class="wide" data-i18n="s1n">Free</b><span data-i18n="s1">to hatch, gas only</span></div>
+        <div><b class="wide" style="color:var(--orange)">~24h</b><span data-i18n="s2">until an unfed pet starves</span></div>
+        <div><b class="wide" style="color:var(--red)">0</b><span data-i18n="s3">second lives</span></div>
+      </div>
+    </div>
+
+    <div class="hero-play">
+      <div class="stage">
+        <div class="disc"></div><div class="orbit"></div>
+        <div class="float f1" aria-hidden="true"><div class="tile" data-sprite="side1"></div><em>+ play</em></div>
+        <div class="float f2" aria-hidden="true"><div class="tile" data-sprite="side2"></div><em>+ feed</em></div>
+        <div class="hint" data-i18n="hint">it works · try the buttons ↓</div>
+        <div class="device" id="device">
+          <div class="ringhole"></div>
+          <div class="label wide">ArcPet</div>
+          <div class="bezel">
+            <div class="lcd" id="lcd">
+              <div class="lcd-top"><span id="lcd-name">Arcturus</span><span id="lcd-id">#1</span></div>
+              <div class="lcd-pet" id="lcd-pet"></div>
+              <div>
+                <div class="lcd-status" id="lcd-status" aria-live="polite"></div>
+                <div class="bars">
+                  <div class="bar" title="Hunger"><i id="bar-h" style="background:var(--orange)"></i></div>
+                  <div class="bar" title="Happiness"><i id="bar-j" style="background:var(--magenta)"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="keys">
+            <div class="key"><button type="button" id="k-feed" aria-label="Feed" style="background:var(--yellow);box-shadow:0 5px 0 #8f7d1c,inset 0 2px 0 rgba(255,255,255,.35)"></button><span data-i18n="kFeed">Feed</span></div>
+            <div class="key"><button type="button" id="k-play" aria-label="Play" style="background:var(--pink);box-shadow:0 5px 0 #9a4a70,inset 0 2px 0 rgba(255,255,255,.35)"></button><span data-i18n="kPlay">Play</span></div>
+            <div class="key"><button type="button" id="k-third" aria-label="Hatch" style="background:#8a86a0;box-shadow:0 5px 0 #4a4658,inset 0 2px 0 rgba(255,255,255,.35)"></button><span id="k-third-label">Hatch</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="log panel">
+        <div class="log-head"><span data-i18n="logL">every button = a transaction</span><span data-i18n="logR">gas paid in USDC</span></div>
+        <ol id="log" aria-live="polite"></ol>
+      </div>
+      <p class="note" data-i18n="simNote">simulated here · one day lasts 36 seconds · costs estimated from mainnet gas</p>
+    </div>
+  </section>
+  </main>
+</div>
+
+<section class="sec" id="born">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker" data-i18n="k1">01 / born fair</span><h2 class="wide h2" data-i18n="h2a">Nobody picks<br>your pet.</h2></div>
+      <p class="lede" data-i18n="l1">Genes come from drand, a public randomness beacon, verified onchain by ArcDraw.</p>
+    </div>
+    <div class="pipe">
+      <div class="step panel"><div class="step-top"><span>01</span><b>t = 0</b></div><div class="art"><div class="sq96" data-sprite="egg" data-box="96"></div></div><div><h3 class="wide" data-i18n="p1">Hatch</h3><p data-i18n="p1d">hatch(name) · free</p></div><span class="arrow">→</span></div>
+      <div class="step panel"><div class="step-top"><span>02</span><b>+12 s</b></div><div class="art"><div class="beacon" aria-hidden="true"><i></i><i></i><b></b></div></div><div><h3 class="wide" data-i18n="p2">drand round</h3><p data-i18n="p2d">public beacon, quicknet</p></div><span class="arrow">→</span></div>
+      <div class="step panel"><div class="step-top"><span>03</span><b data-i18n="p3t">anyone</b></div><div class="art"><svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true"><path d="M48 10 L80 22 V48 C80 66 66 80 48 86 C30 80 16 66 16 48 V22 Z" fill="none" stroke="#7fd6a8" stroke-width="3"/><path d="M34 48 L44 58 L63 38" fill="none" stroke="#7fd6a8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3 class="wide">ArcDraw</h3><p data-i18n="p3d">BLS verified onchain</p></div><span class="arrow">→</span></div>
+      <div class="step panel"><div class="step-top"><span>04</span><b>callback</b></div><div class="art"><div data-sprite="genesPet" data-box="96"></div></div><div><h3 class="wide" data-i18n="p4">Genes</h3><p>keccak256(sig, request)</p></div></div>
+    </div>
+    <div class="decoder">
+      <div class="dec-bytes panel">
+        <div class="dec-head"><span>genes · bytes32</span><button type="button" class="roll" id="roll" data-i18n="roll">Roll new genes</button></div>
+        <div class="hex" id="hex" aria-label="Genes as hex"></div>
+        <div class="bits" id="bits"></div>
+        <p class="dec-foot" data-i18n="decFoot">last byte → looks · byte 2 → hunger · byte 3 → play · the rest is saved for v2</p>
+      </div>
+      <div class="dec-pet panel">
+        <div class="big" id="dec-big"></div>
+        <dl class="traits" id="traits"></dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="life">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker" data-i18n="k2">02 / life is math</span><h2 class="wide h2" data-i18n="h2b">One life.<br>No undo.</h2></div>
+      <div class="formula panel">deathAt = min(lastFed + TH, lastPlayed + TP)</div>
+    </div>
+    <div class="stages" id="stages"></div>
+    <div class="chart panel">
+      <div class="chart-head"><span data-i18n="chartL">hunger of one pet over three days</span><span data-i18n="chartR">the contract stores two timestamps; the rest is computed</span></div>
+      <svg viewBox="0 0 1220 250" role="img" aria-label="Hunger falls from full to empty in about 24 hours. The owner feeds it once, a stranger feeds it once, then nobody comes and it dies.">
+        <line x1="40" y1="30" x2="1200" y2="30" stroke="#25232b"/><line x1="40" y1="120" x2="1200" y2="120" stroke="#25232b"/><line x1="40" y1="210" x2="1200" y2="210" stroke="#3a3742"/>
+        <text x="30" y="34" text-anchor="end" font-family="IBM Plex Mono" font-size="11" fill="#6f6a62">full</text>
+        <text x="30" y="214" text-anchor="end" font-family="IBM Plex Mono" font-size="11" fill="#6f6a62">0</text>
+        <polygon points="40,30 360,180 360,30 680,180 680,30 1067,210 40,210" fill="rgba(245,217,78,0.06)"/>
+        <polyline points="40,30 360,180 360,30 680,180 680,30 1067,210" fill="none" stroke="#f5d94e" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="360" cy="30" r="7" fill="#0d0c10" stroke="#f5d94e" stroke-width="2.5"/>
+        <circle cx="680" cy="30" r="7" fill="#0d0c10" stroke="#f59ac5" stroke-width="2.5"/>
+        <text x="360" y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="#efeae0" data-i18n="cFeed1">feed · owner</text>
+        <text x="680" y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="#f59ac5" data-i18n="cFeed2">feed · a stranger</text>
+        <line x1="1067" y1="30" x2="1067" y2="210" stroke="#e08080" stroke-dasharray="4 5"/>
+        <circle cx="1067" cy="210" r="7" fill="#e08080"/>
+        <text x="1080" y="60" font-family="Archivo" font-weight="800" font-size="20" fill="#e08080" data-i18n="cDeath">DEATH</text>
+        <text x="1080" y="80" font-family="IBM Plex Mono" font-size="12" fill="#a39d92" data-i18n="cPerm">permanent</text>
+        <text x="40" y="236" font-family="IBM Plex Mono" font-size="11" fill="#6f6a62">0h</text>
+        <text x="620" y="236" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#6f6a62">36h</text>
+        <text x="1200" y="236" text-anchor="end" font-family="IBM Plex Mono" font-size="11" fill="#6f6a62">72h</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="arc">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker" data-i18n="k3">03 / why it works on Arc</span><h2 class="wide h2" data-i18n="h2c">Cheap enough<br>to care.</h2></div>
+    </div>
+    <div class="why">
+      <div class="panel"><small data-i18n="w1k">USDC is gas</small><b class="wide" style="color:var(--yellow)">~0.045</b><span class="u" data-i18n="w1u">USDC / month</span><p data-i18n="w1">Keeps one pet alive. Predictable, no volatile token.</p></div>
+      <div class="panel"><small data-i18n="w2k">Fair randomness</small><b class="wide" style="color:var(--blue)">BLS</b><span class="u" data-i18n="w2u">verified onchain</span><p data-i18n="w2">ArcDraw checks every drand signature before genes exist.</p></div>
+      <div class="panel"><small data-i18n="w3k">Art</small><b class="wide" style="color:var(--pink)">100%</b><span class="u" data-i18n="w3u">onchain SVG</span><p data-i18n="w3">The contract draws each pet from its genes and mood.</p></div>
+      <div class="panel"><small data-i18n="w4k">Operators</small><b class="wide" style="color:var(--green)">0</b><span class="u" data-i18n="w4u">keepers · admins · USDC held</span><p data-i18n="w4">Decay is math on block.timestamp. Nothing to run.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="spec-head"><h2 class="wide" data-i18n="specH">128 looks</h2><p data-i18n="specP">4 species × 8 palettes × 4 eyes · drawn by the contract as SVG</p></div>
+  <div class="specimens" id="specimens"></div>
+</div>
+
+<section class="yard" id="graveyard">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker" data-i18n="k4">04 / graveyard</span><h2 class="wide h2" data-i18n="h2d">Plots are<br>still open.</h2></div>
+      <p class="lede" data-i18n="l4">Anyone can bury a dead pet. The tombstone keeps its name and age, onchain.</p>
+    </div>
+    <div class="plots" id="plots"></div>
+  </div>
+  <div class="ground"></div>
+</section>
+
+<footer class="wrap foot">
+  <div class="foot-cta">
+    <h2 class="wide" data-i18n="footH">Someone<br>has to care.</h2>
+    <a class="btn primary" href="app/" data-i18n="ctaHatch">Hatch a pet</a>
+  </div>
+  <div class="chips"><span>ArcDraw</span><span>drand quicknet</span><span>Soulbound ERC-721</span><span data-i18n="chipSvg">Onchain SVG</span><span>Foundry</span><span>@arcpet/sdk</span><span>Open source · MIT</span></div>
+  <div class="foot-bar">
+    <span data-i18n="footL">Built for Arc Microgrants · production consumer of ArcDraw</span>
+    <nav aria-label="Links">
+      <a href="https://github.com/r4topunk/arcpet">GitHub</a>
+      <a href="https://github.com/r4topunk/arcdraw">ArcDraw</a>
+      <a href="https://explorer.arc.io/address/0xe61e479900e9d7e1bf67c69a81f1c91419fd897d" data-i18n="footExp">Contract on explorer</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // ---------- sprites (same bitmaps as contracts/src/PetRenderer.sol) ----------
+  const SP = {
+    blob: ['M4 2h4v1h-4zM2 3h8v1h-8zM1 4h10v1h-10zM1 5h10v1h-10zM0 6h12v1h-12zM0 7h12v1h-12zM0 8h12v1h-12zM0 9h12v1h-12zM1 10h10v1h-10zM2 11h2v1h-2zM8 11h2v1h-2z', 'M1 7h1v1h-1zM10 7h1v1h-1z'],
+    cat: ['M1 0h1v1h-1zM10 0h1v1h-1zM1 1h2v1h-2zM9 1h2v1h-2zM1 2h3v1h-3zM8 2h3v1h-3zM1 3h10v1h-10zM1 4h10v1h-10zM0 5h12v1h-12zM0 6h12v1h-12zM1 7h10v1h-10zM2 8h8v1h-8zM2 9h8v1h-8zM2 10h8v1h-8zM2 11h2v1h-2zM8 11h2v1h-2z', 'M2 2h1v1h-1zM9 2h1v1h-1z'],
+    bird: ['M5 1h2v1h-2zM4 2h4v1h-4zM3 3h6v1h-6zM2 4h8v1h-8zM2 5h8v1h-8zM1 6h10v1h-10zM0 7h12v1h-12zM1 8h10v1h-10zM2 9h8v1h-8zM3 10h1v1h-1zM8 10h1v1h-1zM2 11h2v1h-2zM7 11h2v1h-2z', 'M0 7h2v1h-2zM10 7h2v1h-2zM1 8h1v1h-1zM10 8h1v1h-1zM3 10h1v1h-1zM8 10h1v1h-1zM2 11h2v1h-2zM7 11h2v1h-2z'],
+    bunny: ['M2 0h2v1h-2zM8 0h2v1h-2zM2 1h2v1h-2zM8 1h2v1h-2zM2 2h2v1h-2zM8 2h2v1h-2zM2 3h8v1h-8zM1 4h10v1h-10zM1 5h10v1h-10zM1 6h10v1h-10zM1 7h10v1h-10zM2 8h8v1h-8zM2 9h8v1h-8zM1 10h3v1h-3zM8 10h3v1h-3z', 'M3 1h1v1h-1zM8 1h1v1h-1zM3 2h1v1h-1zM8 2h1v1h-1zM1 7h1v1h-1zM10 7h1v1h-1z']
+  };
+  const EYES = ['M4 5h1v1h-1zM7 5h1v1h-1z', 'M3 4h2v1h-2zM7 4h2v1h-2zM3 5h2v1h-2zM7 5h2v1h-2z', 'M3 5h2v1h-2zM7 5h2v1h-2z', 'M4 4h1v1h-1zM7 4h1v1h-1zM4 5h1v1h-1zM7 5h1v1h-1z'];
+  const MOUTH = { happy: 'M4 7h1v1h-1zM7 7h1v1h-1zM5 8h2v1h-2z', hungry: 'M5 7h2v1h-2zM5 8h2v1h-2z', sad: 'M5 7h2v1h-2zM4 8h1v1h-1zM7 8h1v1h-1z' };
+  const TEAR = 'M3 6h1v1h-1zM8 6h1v1h-1zM3 7h1v1h-1z';
+  const EGG = ['M5 1h2v1h-2zM4 2h4v1h-4zM3 3h6v1h-6zM3 4h6v1h-6zM2 5h8v1h-8zM2 6h8v1h-8zM2 7h8v1h-8zM2 8h8v1h-8zM3 9h6v1h-6zM4 10h4v1h-4z', 'M5 2h1v1h-1zM6 4h1v1h-1zM3 5h1v1h-1zM7 6h1v1h-1zM4 7h1v1h-1zM6 9h1v1h-1z'];
+  const TOMB = ['M4 1h4v1h-4zM3 2h6v1h-6zM2 3h8v1h-8zM2 4h8v1h-8zM2 5h8v1h-8zM2 6h8v1h-8zM2 7h8v1h-8zM2 8h8v1h-8zM2 9h8v1h-8zM2 10h8v1h-8z', 'M5 3h2v1h-2zM4 4h4v1h-4zM5 5h2v1h-2zM5 6h2v1h-2z', 'M1 9h1v1h-1zM10 9h1v1h-1zM0 10h1v1h-1zM2 10h1v1h-1zM9 10h1v1h-1zM11 10h1v1h-1z', 'M0 11h12v1h-12z'];
+  const PAL = [['Mint', '#e6f7ef', '#7fd6a8', '#2f9e6b'], ['Peach', '#fff0e6', '#ffb38a', '#e0703f'], ['Sky', '#e8f3ff', '#7fb8f0', '#3a7bd5'], ['Lilac', '#f3ecff', '#b89cf0', '#7a52cc'], ['Lemon', '#fffbe0', '#f5d94e', '#c9a400'], ['Coral', '#ffecec', '#e08080', '#c94848'], ['Slate', '#eceff3', '#8a99ad', '#4f5d73'], ['Rose', '#fff0f6', '#f59ac5', '#d05893']];
+  const SPECIES = ['blob', 'cat', 'bird', 'bunny'];
+  const SPECIES_NAME = ['Blob', 'Cat', 'Bird', 'Bunny'];
+  const EYES_NAME = ['Dot', 'Big', 'Wide', 'Tall'];
+
+  const svg = (layers, size, cls = '', label = '') =>
+    `<svg viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" class="${cls}" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>` +
+    layers.filter((l) => l[0]).map(([d, f]) => `<path d="${d}" fill="${f}"/>`).join('') + '</svg>';
+  function petLayers(sp, pal, eyes, mood = 'happy', ink = '#222') {
+    const P = PAL[pal];
+    const L = [[SP[SPECIES[sp]][0], P[2]], [SP[SPECIES[sp]][1], P[3]], [EYES[eyes] + MOUTH[mood], ink]];
+    if (mood === 'sad') L.push([TEAR, '#4aa8ff']);
+    return L;
+  }
+  const eggLayers = () => [[EGG[0], '#f3ead3'], [EGG[1], '#c9b58a']];
+  const tombLayers = (flower, dark) => dark
+    ? [[TOMB[3], '#2f5b2a'], [TOMB[0], '#6b6f76'], [TOMB[1], '#34373c'], [TOMB[2], flower]]
+    : [[TOMB[3], '#7cb66a'], [TOMB[0], '#9aa0a6'], [TOMB[1], '#5f6368'], [TOMB[2], flower]];
+  const deadLayers = (sp, pal, eyes) => [[SP[SPECIES[sp]][0], '#9aa0a6'], [SP[SPECIES[sp]][1], '#80868c'], [EYES[eyes] + MOUTH.sad, '#222']];
+
+  // ---------- genes (docs/SPEC.md §4) ----------
+  const randHex = () => { const b = new Uint8Array(32); crypto.getRandomValues(b); return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join(''); };
+  function decode(hex) {
+    const lo = parseInt(hex.slice(62, 64), 16), hg = parseInt(hex.slice(60, 62), 16), pg = parseInt(hex.slice(58, 60), 16);
+    const mult = (x) => 8000 + Math.floor(x * 4000 / 255);
+    return { sp: lo & 3, pal: (lo >> 2) & 7, eyes: (lo >> 5) & 3, lo, TH: Math.floor(86400 * mult(hg) / 10000), TP: Math.floor(172800 * mult(pg) / 10000) };
+  }
+  const hm = (sec) => Math.floor(sec / 3600) + 'h ' + String(Math.floor(sec / 60) % 60).padStart(2, '0') + 'm';
+  const GAS_PRICE = 20e-9; // ~20 gwei, USDC is the native gas token on Arc
+  const usdc = (gas) => (gas * GAS_PRICE).toFixed(4) + ' USDC';
+  const gasK = (gas) => Math.round(gas / 1000) + 'k gas';
+  const DRAND_GENESIS = 1692803367, DRAND_PERIOD = 3;
+
+  // ---------- i18n ----------
+  const STORAGE_KEY = 'arcpet:lang'; // shared with apps/web
+  let lang = 'en';
+  const PT = {
+    navGenes: 'Genes', navLife: 'Vida', navArc: 'Por que Arc', navGraveyard: 'Cemitério', navApp: 'Abrir app',
+    pill: 'No ar na mainnet da Arc · com ArcDraw', h1: 'Mantenha<br>algo<br><span>vivo.</span>',
+    sub: 'Um tamagotchi onchain na Arc. Se ninguém alimentar, ele morre. Para sempre.',
+    ctaHatch: 'Chocar um pet', ctaHow: 'Como funciona',
+    s1n: 'Grátis', s1: 'para chocar, só gás', s2: 'até um pet sem comida morrer', s3: 'segundas vidas',
+    hint: 'funciona · aperte os botões ↓', kFeed: 'Comer', kPlay: 'Brincar',
+    logL: 'cada botão = uma transação', logR: 'gás pago em USDC',
+    simNote: 'simulação · um dia dura 36 segundos · custos estimados pelo gás da mainnet',
+    k1: '01 / nascido justo', h2a: 'Ninguém escolhe<br>o seu pet.', l1: 'Os genes vêm do drand, um beacon público de aleatoriedade, verificado onchain pelo ArcDraw.',
+    p1: 'Chocar', p1d: 'hatch(nome) · grátis', p2: 'Rodada drand', p2d: 'beacon público, quicknet', p3t: 'qualquer um', p3d: 'BLS verificado onchain', p4: 'Genes',
+    roll: 'Sortear genes', decFoot: 'último byte → aparência · byte 2 → fome · byte 3 → brincar · o resto fica para a v2',
+    k2: '02 / a vida é matemática', h2b: 'Uma vida.<br>Sem volta.',
+    chartL: 'fome de um pet em três dias', chartR: 'o contrato guarda dois timestamps; o resto é calculado',
+    cFeed1: 'comida · dono', cFeed2: 'comida · um estranho', cDeath: 'MORTE', cPerm: 'permanente',
+    k3: '03 / por que funciona na Arc', h2c: 'Barato o bastante<br>para cuidar.',
+    w1k: 'USDC é o gás', w1u: 'USDC / mês', w1: 'Mantém um pet vivo. Previsível, sem token volátil.',
+    w2k: 'Aleatoriedade justa', w2u: 'verificado onchain', w2: 'O ArcDraw confere cada assinatura do drand antes de os genes existirem.',
+    w3k: 'Arte', w3u: 'SVG onchain', w3: 'O contrato desenha cada pet a partir dos genes e do humor.',
+    w4k: 'Operadores', w4u: 'keepers · admins · USDC guardado', w4: 'O decaimento é matemática sobre block.timestamp. Nada para rodar.',
+    specH: '128 visuais', specP: '4 espécies × 8 paletas × 4 olhos · desenhados pelo contrato em SVG',
+    k4: '04 / cemitério', h2d: 'Ainda há<br>covas livres.', l4: 'Qualquer um pode enterrar um pet morto. A lápide guarda nome e idade, onchain.',
+    footH: 'Alguém precisa<br>cuidar.', chipSvg: 'SVG onchain', footL: 'Feito para o Arc Microgrants · consumidor em produção do ArcDraw', footExp: 'Contrato no explorer'
+  };
+  const T = {
+    en: { starves: 'starves in ', waiting: 'waiting for drand...', dead: 'dead · press bury', rip: 'RIP · press hatch', hatch: 'Hatch', bury: 'Bury',
+      species: 'species', palette: 'palette', eyes: 'eyes', starvesAfter: 'starves after', sadAfter: 'gets sad after', unused: 'unused',
+      stages: [['Egg', 'hatch(name)', 'Never spoils while it waits.'], ['Alive', 'feed · play', 'Any wallet can care for it.'], ['Dead', 'now ≥ deathAt', 'Feed and play revert.'], ['Buried', 'bury(id)', 'Name and age, frozen.']],
+      open: 'open plot', cinder: 'left alone on purpose' },
+    pt: { starves: 'morre em ', waiting: 'esperando o drand...', dead: 'morto · aperte enterrar', rip: 'RIP · aperte chocar', hatch: 'Chocar', bury: 'Enterrar',
+      species: 'espécie', palette: 'paleta', eyes: 'olhos', starvesAfter: 'morre de fome em', sadAfter: 'fica triste em', unused: 'livre',
+      stages: [['Ovo', 'hatch(nome)', 'Não estraga enquanto espera.'], ['Vivo', 'feed · play', 'Qualquer carteira pode cuidar.'], ['Morto', 'now ≥ deathAt', 'Comer e brincar revertem.'], ['Enterrado', 'bury(id)', 'Nome e idade, congelados.']],
+      open: 'cova livre', cinder: 'deixado sozinho de propósito' }
+  };
+  const t = (k) => T[lang][k];
+
+  // ---------- static sprites ----------
+  const put = (key, html) => document.querySelectorAll(`[data-sprite="${key}"]`).forEach((el) => { el.innerHTML = html; });
+  put('logo', svg([[SP.blob[0], '#f5d94e'], [EYES[0] + MOUTH.happy, '#0d0c10']], 28));
+  [['side1', 3, 7, 3], ['side2', 2, 2, 0]].forEach(([k, sp, pal, eyes]) => {
+    document.querySelectorAll(`[data-sprite="${k}"]`).forEach((el) => { el.style.background = PAL[pal][1]; el.innerHTML = svg(petLayers(sp, pal, eyes), 58, 'bob'); });
+  });
+  const boxed = (layers, bg, box, inner, radius = 16) => `<div style="width:${box}px;height:${box}px;border-radius:${radius}px;background:${bg};display:flex;align-items:center;justify-content:center">${svg(layers, inner)}</div>`;
+  put('egg', boxed(eggLayers(), '#f4f1ea', 96, 68));
+  put('genesPet', boxed(petLayers(3, 0, 0), PAL[0][1], 96, 68));
+
+  document.getElementById('specimens').innerHTML = SPECIES.flatMap((_, si) => PAL.map((P, pi) =>
+    `<div style="background:${P[1]}">${svg(petLayers(si, pi, (si + pi) % 4), 84, '', `${SPECIES_NAME[si]}, ${P[0]}`)}</div>`)).join('');
+
+  function renderStages() {
+    const st = t('stages');
+    const arts = [[eggLayers(), '#f4f1ea'], [petLayers(1, 7, 1), PAL[7][1]], [deadLayers(1, 7, 1), '#d9dce0'], [tombLayers('#f59ac5'), '#e9ecef']];
+    document.getElementById('stages').innerHTML = st.map(([h, code, p], i) =>
+      `<div class="stage-i"><div class="row"><div class="sq" style="background:${arts[i][1]}">${svg(arts[i][0], 92)}</div><div class="ln"></div></div><h3 class="wide">${h}</h3><code>${code}</code><p>${p}</p></div>`).join('');
+  }
+  function renderPlots() {
+    const empty = [[TOMB[3], '#1e2a1c']];
+    const plots = [`<div class="plot taken">${svg(tombLayers('#e08080', true), 120)}<div>Cinder #3<small>${t('cinder')}</small></div></div>`];
+    for (let i = 0; i < 5; i++) plots.push(`<div class="plot">${svg(empty, 120)}<div>${t('open')}<small>—</small></div></div>`);
+    document.getElementById('plots').innerHTML = plots.join('');
+  }
+
+  // ---------- decoder ----------
+  let dg = randHex();
+  function renderDecoder() {
+    const g = decode(dg), b = g.lo.toString(2).padStart(8, '0');
+    document.getElementById('hex').innerHTML = `<span class="d">0x${dg.slice(0, 58)}</span><span class="p">${dg.slice(58, 60)}</span><span class="h">${dg.slice(60, 62)}</span><span class="l">${dg.slice(62)}</span>`;
+    document.getElementById('bits').innerHTML = [[b.slice(0, 1), t('unused')], [b.slice(1, 3), t('eyes')], [b.slice(3, 6), t('palette')], [b.slice(6), t('species')]]
+      .map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+    const big = document.getElementById('dec-big');
+    big.style.background = PAL[g.pal][1];
+    big.innerHTML = svg(petLayers(g.sp, g.pal, g.eyes), 132, 'bob', `${SPECIES_NAME[g.sp]}, ${PAL[g.pal][0]}`);
+    document.getElementById('traits').innerHTML = [[t('species'), SPECIES_NAME[g.sp]], [t('palette'), PAL[g.pal][0]], [t('eyes'), EYES_NAME[g.eyes]],
+      [t('starvesAfter'), hm(g.TH), 'var(--orange)'], [t('sadAfter'), hm(g.TP), 'var(--magenta)']]
+      .map(([k, v, c]) => `<div><dt>${k}</dt><dd style="color:${c || 'var(--ink)'}">${v}</dd></div>`).join('');
+  }
+  document.getElementById('roll').addEventListener('click', () => { dg = randHex(); renderDecoder(); });
+
+  // ---------- device ----------
+  const NAMES = ['Pixel', 'Mochi', 'Byte', 'Nova', 'Pip', 'Juno', 'Tofu', 'Echo'];
+  const firstHex = dg;
+  const S = { phase: 'alive', h: 82, j: 70, hex: firstHex, id: 1, name: 'Arcturus', log: [] };
+  const genesLine = (hex) => ({ fn: 'genes → 0x' + hex.slice(0, 6) + '…' + hex.slice(58), gas: '', cost: 'callback', color: 'var(--green)' });
+  S.log = [
+    { fn: 'hatch("Arcturus")', gas: gasK(230000), cost: usdc(230000), color: 'var(--ink)' },
+    { fn: 'fulfill · drand ✓ BLS', gas: gasK(292000), cost: usdc(292000), color: 'var(--blue)' },
+    genesLine(firstHex)
+  ];
+  const $ = (id) => document.getElementById(id);
+  function push(line) { S.log.push(line); S.log = S.log.slice(-5); renderLog(); }
+  function renderLog() {
+    $('log').innerHTML = S.log.map((l) => `<li style="color:${l.color}"><span>${l.fn}</span><span class="g">${l.gas}</span><span class="c">${l.cost}</span></li>`).join('');
+  }
+  let lastKey = '';
+  function renderDevice() {
+    const g = decode(S.hex);
+    const mood = S.h < 30 ? 'hungry' : S.j < 30 ? 'sad' : 'happy';
+    let bg, layers, status, anim = '', glow;
+    if (S.phase === 'egg') { bg = '#f4f1ea'; layers = eggLayers(); status = t('waiting'); anim = 'wob'; glow = 'rgba(127,184,240,.14)'; }
+    else if (S.phase === 'dead') { bg = '#d9dce0'; layers = deadLayers(g.sp, g.pal, g.eyes); status = t('dead'); glow = 'rgba(224,128,128,.14)'; }
+    else if (S.phase === 'buried') { bg = '#e9ecef'; layers = tombLayers(PAL[g.pal][2]); status = t('rip'); glow = 'rgba(0,0,0,0)'; }
+    else { bg = PAL[g.pal][1]; layers = petLayers(g.sp, g.pal, g.eyes, mood); status = t('starves') + hm(Math.min(S.h / 100 * g.TH, S.j / 100 * g.TP)); anim = 'bob'; glow = 'rgba(245,217,78,.10)'; }
+    $('lcd').style.background = bg;
+    $('device').style.setProperty('--glow', glow);
+    const key = S.phase + mood + S.hex;
+    if (key !== lastKey) { $('lcd-pet').innerHTML = svg(layers, 104, anim, S.phase); lastKey = key; }
+    $('lcd-status').textContent = status;
+    $('lcd-name').textContent = S.name;
+    $('lcd-id').textContent = '#' + S.id;
+    $('bar-h').style.width = (S.phase === 'alive' ? S.h : 0) + '%';
+    $('bar-j').style.width = (S.phase === 'alive' ? S.j : 0) + '%';
+    const third = S.phase === 'dead' ? t('bury') : t('hatch');
+    $('k-third-label').textContent = third;
+    $('k-third').setAttribute('aria-label', third);
+  }
+  function care(kind) {
+    if (S.phase === 'egg') return;
+    if (S.phase !== 'alive') { push({ fn: `${kind}(${S.id}) ✕ reverted: dead`, gas: '', cost: '—', color: 'var(--red)' }); return; }
+    S[kind === 'feed' ? 'h' : 'j'] = 100;
+    push({ fn: `${kind}(${S.id})`, gas: gasK(32000), cost: usdc(32000), color: 'var(--ink)' });
+    renderDevice();
+  }
+  function third() {
+    if (S.phase === 'egg') return;
+    if (S.phase === 'alive') { push({ fn: 'hatch ✕ reverted: one pet per wallet', gas: '', cost: '—', color: 'var(--red)' }); return; }
+    if (S.phase === 'dead') { S.phase = 'buried'; push({ fn: `bury(${S.id})`, gas: '', cost: 'anyone', color: 'var(--muted)' }); renderDevice(); return; }
+    const name = NAMES[Math.floor(Math.random() * NAMES.length)], hex = randHex();
+    const round = Math.floor((Date.now() / 1000 - DRAND_GENESIS) / DRAND_PERIOD) + 5;
+    Object.assign(S, { phase: 'egg', id: S.id + 1, name });
+    push({ fn: `hatch("${name}")`, gas: gasK(230000), cost: usdc(230000), color: 'var(--ink)' });
+    renderDevice();
+    setTimeout(() => push({ fn: `fulfill · drand #${round} ✓`, gas: gasK(292000), cost: usdc(292000), color: 'var(--blue)' }), 1400);
+    setTimeout(() => {
+      Object.assign(S, { phase: 'alive', h: 100, j: 100, hex });
+      push(genesLine(hex));
+      dg = hex; renderDecoder(); renderDevice();
+    }, 2600);
+  }
+  $('k-feed').addEventListener('click', () => care('feed'));
+  $('k-play').addEventListener('click', () => care('play'));
+  $('k-third').addEventListener('click', third);
+
+  // Only tick while the hero is on screen, so the pet is not found dead on return.
+  let visible = true;
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe($('device'));
+  setInterval(() => {
+    if (S.phase !== 'alive' || !visible || document.hidden) return;
+    const g = decode(S.hex);
+    S.h = Math.max(0, S.h - 1.4 * 86400 / g.TH);
+    S.j = Math.max(0, S.j - 1.4 * 86400 / g.TP);
+    if (S.h <= 0 || S.j <= 0) { S.phase = 'dead'; push({ fn: 'deathAt reached', gas: '', cost: 'no tx needed', color: 'var(--red)' }); }
+    renderDevice();
+  }, 500);
+
+  // ---------- language ----------
+  const EN = {};
+  document.querySelectorAll('[data-i18n]').forEach((el) => { EN[el.dataset.i18n] = el.innerHTML; });
+  function render() { renderStages(); renderPlots(); renderDecoder(); renderDevice(); renderLog(); }
+  function apply(l) {
+    lang = l;
+    const dict = l === 'pt' ? PT : EN;
+    document.querySelectorAll('[data-i18n]').forEach((el) => { const v = dict[el.dataset.i18n]; if (v !== undefined) el.innerHTML = v; });
+    document.documentElement.lang = l === 'pt' ? 'pt-BR' : 'en';
+    document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
+    try { localStorage.setItem(STORAGE_KEY, l); } catch {}
+    render();
+  }
+  document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => apply(b.dataset.lang)));
+  let stored = null;
+  try { stored = localStorage.getItem(STORAGE_KEY); } catch {}
+  if (stored === 'pt' || (!stored && (navigator.language || '').toLowerCase().startsWith('pt'))) apply('pt'); else render();
+})();
+</script>
+</body>
+</html>

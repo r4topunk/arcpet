@@ -1,0 +1,28 @@
+{
+  "name": "arcpet",
+  "private": true,
+  "description": "ArcPet: onchain tamagotchi on Arc with ArcDraw genes and permanent death",
+  "license": "MIT",
+  "packageManager": "pnpm@11.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm contracts:build && pnpm -r --if-present build",
+    "test": "pnpm contracts:test:ci && pnpm -r --if-present test",
+    "check": "pnpm build && pnpm test && pnpm typecheck && pnpm lint && pnpm contracts:fmt && pnpm sdk:check-abi && pnpm contracts:snapshot:check",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm --filter '@arcpet/sdk...' build && pnpm -r --if-present typecheck",
+    "contracts:build": "cd contracts && forge build",
+    "contracts:test": "cd contracts && forge test -vvv",
+    "contracts:test:ci": "cd contracts && forge test",
+    "contracts:fmt": "cd contracts && forge fmt --check",
+    "contracts:snapshot": "cd contracts && forge snapshot --no-match-path 'test/{invariant,fork}/*'",
+    "contracts:snapshot:check": "cd contracts && forge snapshot --check --tolerance 5 --no-match-path 'test/{invariant,fork}/*'",
+    "contracts:abi": "cd contracts && forge build && cd .. && pnpm --filter @arcpet/sdk generate:abi",
+    "contracts:samples": "cd contracts && forge script script/RenderSamples.s.sol",
+    "contracts:vectors": "cd contracts && forge script script/SdkVectors.s.sol",
+    "sdk:check-abi": "pnpm --filter @arcpet/sdk check:abi",
+    "sdk:check-vendor": "pnpm --filter @arcpet/sdk check:vendor"
+  }
+}

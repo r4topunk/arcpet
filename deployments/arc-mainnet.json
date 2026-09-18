@@ -1,0 +1,37 @@
+{
+  "network": "arc-mainnet",
+  "chainId": 5042,
+  "rpc": "https://rpc.mainnet.arc.io",
+  "explorer": "https://explorer.arc.io",
+  "drand": {
+    "beacon": "quicknet",
+    "chainHash": "52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
+    "genesisTime": 1692803367,
+    "period": 3
+  },
+  "external": {
+    "ArcDrawCoordinator": {
+      "address": "0x3cfDaa3521fDff2b891590c2693972Eb3e1B0324",
+      "deployBlock": 21338070,
+      "source": "arc-randomness/deployments/arc-mainnet.json"
+    }
+  },
+  "contracts": {
+    "ArcPet": {
+      "address": "0xe61e479900e9d7e1bf67c69a81f1c91419fd897d",
+      "deployBlock": 21513700,
+      "deployTx": "0xdecfdb741592a99aed74818c559c2d238fc1c68800d6d40f5cf35fe758da5921",
+      "verified": true,
+      "deployer": "0x39a7b6fa1597bb6657fe84e64e3b836c37d6f75d",
+      "commit": null
+    }
+  },
+  "demo": {
+    "hatchMainTx": "0xf4e4ed6e21316b23071135950fa784933ca2eb6659a67250350467cda6688052",
+    "hatchBTx": "0x59395db2dbc424ff3b82e1fc8eb7969002336637d49b07aaf12d29cf8c5b5694",
+    "hatchCTx": "0xa4958dae7f5a30af308421cbca6ff0f040574cf19a65f4b36515e1638168dd4b",
+    "fulfillTx": "0xc25b2cafacdd289896af039e4bb2e560107167d4b73080e2a7373121fbf5922f",
+    "socialFeedTx": "0x88d6128b3da61e5f87cc18ca9cf197985d89d425c20f51a6fa3140f6feb0d6e7",
+    "buryByThirdPartyTx": ""
+  }
+}

@@ -1,0 +1,39 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.30"
+# ArcPet needs no EIP-2537 precompile itself (the ArcDraw coordinator does the BLS work), so prague is enough.
+evm_version = "prague"
+optimizer = true
+optimizer_runs = 10_000
+fs_permissions = [
+  { access = "read", path = "../deployments" },
+  { access = "read", path = "./test/fixtures" },
+  # script/RenderSamples.s.sol dumps eyeball-able SVGs here (no chain access, no broadcast)
+  { access = "write", path = "../docs/samples" },
+  # script/SdkVectors.s.sol writes the TS/Solidity parity fixture here (local simulation, no broadcast)
+  { access = "write", path = "../packages/sdk/test/fixtures" },
+]
+
+[profile.default.fuzz]
+runs = 1000
+# fixed seed keeps .gas-snapshot reproducible; override with --fuzz-seed for exploration
+seed = "0x417263506574"
+
+[profile.default.invariant]
+runs = 256
+depth = 64
+
+[rpc_endpoints]
+arc = "https://rpc.mainnet.arc.io"
+arc_testnet = "https://rpc.testnet.arc.io"
+
+[lint]
+# Decay and death are timestamp-based by design (windows are ~1-2 days; validator drift is seconds). See docs/SPEC.md.
+exclude_lints = ["block-timestamp"]
+ignore = ["lib/**/*.sol", "src/vendor/**/*.sol", "test/vendor/**/*.sol", "test/fixtures/**/*.sol"]
+
+[fmt]
+line_length = 120
+ignore = ["src/vendor/**/*.sol", "test/vendor/**/*.sol", "test/fixtures/**/*.sol"]

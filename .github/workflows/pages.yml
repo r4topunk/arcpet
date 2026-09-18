@@ -1,0 +1,51 @@
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths: [site/**, apps/web/**, packages/**, deployments/**, .github/workflows/pages.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Builds @arcpet/sdk first (its ABI modules are committed, so no Foundry here), then the static export
+      # (/arcpet/app/*). The ArcPet address comes from deployments/arc-mainnet.json; while it is empty the app shows
+      # "not deployed yet". NEXT_PUBLIC_ARCPET_ADDRESS (repository variable) overrides it.
+      - name: Build the web app
+        run: pnpm --filter "@arcpet/web..." build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /arcpet
+          NEXT_PUBLIC_SITE_URL: https://r4topunk.github.io/arcpet
+          NEXT_PUBLIC_REPO_URL: https://github.com/r4topunk/arcpet
+          NEXT_PUBLIC_ARCPET_ADDRESS: ${{ vars.NEXT_PUBLIC_ARCPET_ADDRESS }}
+          NEXT_PUBLIC_RPC_URL: ${{ vars.NEXT_PUBLIC_RPC_URL }}
+      # site/ goes on top of the export, so site/index.html is the project page at https://r4topunk.github.io/arcpet/
+      - name: Assemble the Pages artifact
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          cp -R apps/web/out/. _site/
+          cp -R site/. _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4

@@ -1,0 +1,2 @@
+forge-std v1.16.2 (bf647bd6046f2f7da30d0c2bf435e5c76a780c1b), copied from arc-seal/contracts/lib/forge-std without .git.
+When this repo is git-initialized, replace with: git submodule add https://github.com/foundry-rs/forge-std contracts/lib/forge-std && git -C contracts/lib/forge-std checkout v1.16.2

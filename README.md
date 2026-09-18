@@ -104,7 +104,7 @@ from the JSON, or from `NEXT_PUBLIC_ARCPET_ADDRESS`).
 | B feeds C's pet (social care) | [`0x88d6128b…`](https://explorer.arc.io/tx/0x88d6128b3da61e5f87cc18ca9cf197985d89d425c20f51a6fa3140f6feb0d6e7) |
 | C's pet dies, B buries it | `TBD` |
 
-Site: `https://r4topunk.github.io/arcpet` (TBD)
+Site: https://r4topunk.github.io/arcpet/
 
 ## Credits
 

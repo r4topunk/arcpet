@@ -104,7 +104,7 @@ from the JSON, or from `NEXT_PUBLIC_ARCPET_ADDRESS`).
 | Fulfill via ArcDraw (callback hatches #2) | [`0x697b20ff…`](https://explorer.arc.io/tx/0x697b20fff22e953cc0415926001ab1b9cb7a5adecd5a322214ec80c94452b2be) |
 | Fulfill via ArcDraw (callback hatches #3) | [`0x4107f040…`](https://explorer.arc.io/tx/0x4107f04036f3c99ddd738e3a0594fc063fbb2dde114e0ca20a55812fe047c7e8) |
 | B feeds C's pet (social care) | [`0x88d6128b…`](https://explorer.arc.io/tx/0x88d6128b3da61e5f87cc18ca9cf197985d89d425c20f51a6fa3140f6feb0d6e7) |
-| C's pet dies, B buries it | `TBD` |
+| C's pet dies, B buries it | [`0x0bfa8ebb…`](https://explorer.arc.io/tx/0x0bfa8ebb9456b9cf20605861f6535e7a12669371ebe208b5d8cd9ae9fdea924d) |
 
 Site: https://r4topunk.github.io/arcpet/
 

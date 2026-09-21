@@ -133,9 +133,9 @@ Deployer: `0x39a7B6fa1597BB6657Fe84e64E3B836c37d6F75d`. Constructor argument: th
 
 This is the same data as `demo` in `deployments/arc-mainnet.json` and the README's demo table, which is the live
 source of proof hashes: https://github.com/r4topunk/arcpet#demo-transactions-d17. Pets: #1 "Arcturus" (main wallet), #2 "Bolt" (wallet B) and #3 "Cinder" (wallet C),
-all hatched through ArcDraw with genes on chain. Pet #3 is left alone on purpose. The death-and-bury proof is
-scheduled, not yet sent: Cinder's `deathAt` is 2026-09-19 17:23 UTC, wallet B buries it right after, and the bury
-tx hash is added to the README demo table.
+all hatched through ArcDraw with genes on chain. Pet #3 was left alone on purpose: Cinder's `deathAt` passed at
+2026-09-19 17:23 UTC and wallet B buried it 18 minutes later, at 17:41 UTC. All six proofs are sent and have
+status `success`.
 
 | # | Proof | Tx |
 |---|---|---|
@@ -145,11 +145,12 @@ tx hash is added to the README demo table.
 | 4 | Fulfill through the ArcDraw coordinator: drand quicknet BLS verified onchain, callback hatches #1 | [0xc25b…922f](https://explorer.arc.io/tx/0xc25b2cafacdd289896af039e4bb2e560107167d4b73080e2a7373121fbf5922f) |
 | 4b | Fulfill for #2 and #3 (same path) | [0x697b…b2be](https://explorer.arc.io/tx/0x697b20fff22e953cc0415926001ab1b9cb7a5adecd5a322214ec80c94452b2be) · [0x4107…c7e8](https://explorer.arc.io/tx/0x4107f04036f3c99ddd738e3a0594fc063fbb2dde114e0ca20a55812fe047c7e8) |
 | 5 | Social care: wallet B feeds C's pet (#3) | [0x88d6…d6e7](https://explorer.arc.io/tx/0x88d6128b3da61e5f87cc18ca9cf197985d89d425c20f51a6fa3140f6feb0d6e7) |
-| 6 | Permanent death: #3 dies at `deathAt` (2026-09-19 17:23 UTC), wallet B buries it (permissionless `bury`) | Scheduled; the hash goes in the [README demo table](https://github.com/r4topunk/arcpet#demo-transactions-d17) once sent |
+| 6 | Permanent death: #3 died at `deathAt` (2026-09-19 17:23 UTC) and wallet B buried it at 17:41 UTC (permissionless `bury`, final age 26h 37m) | [0x0bfa…924d](https://explorer.arc.io/tx/0x0bfa8ebb9456b9cf20605861f6535e7a12669371ebe208b5d8cd9ae9fdea924d) |
 
 Definition of done (PLAN-ARCPET D17): three named pets hatched, one pet fed by a third party, one pet dead and buried
-by a third party. Proofs #1–#5 have status `success` on `https://explorer.arc.io`; #6 completes the loop on
-2026-09-19.
+by a third party. All six proofs have status `success` on `https://explorer.arc.io`; #6 closed the loop on
+2026-09-19. The three demo pets have since died (#2 on 2026-09-19, #1 on 2026-09-20): nothing keeps a pet alive
+but someone choosing to feed it.
 
 ## Demo video script (2:00)
 
@@ -162,18 +163,18 @@ by a third party. Proofs #1–#5 have status `success` on `https://explorer.arc.
 | 1:25–1:45 | ArcPet on the explorer and its Sourcify exact match, then `tokenURI` rendered in a wallet or explorer | "The art is an onchain SVG, and the contract has no owner, no upgrade and no USDC. If the ArcDraw callback ever fails, `claimGenes` finishes the hatch from the coordinator." |
 | 1:45–2:00 | Oldest-alive ranking, then the repo | "No paid mint, no prize, no transfers: it's a game, not a bet. MIT-licensed, and live on Arc mainnet." |
 
-Recording tips: record at 1920×1080 and cut the wait between request and fulfill. The 1:00–1:25 segment needs the
-real death and bury (after 2026-09-19 17:23 UTC), not a staged one, so record the video after that.
+Recording tips: record at 1920×1080 and cut the wait between request and fulfill. The 1:00–1:25 segment uses the
+real death and bury of #3 (2026-09-19), not a staged one. The three demo pets are now dead, so the 0:00–0:15 and
+1:45–2:00 segments need a freshly hatched pet.
 
 ## Before pasting
 
 - [x] ArcPet deployed and Sourcify-verified (exact match: runtime and creation)
 - [x] Public repo, project page and `/arcpet/app/` open (HTTP 200 on 2026-09-18)
-- [x] Proofs #1–#5 have status `success` on mainnet
+- [x] Proofs #1–#6 have status `success` on mainnet
 - [ ] TODO(owner): confirm the team line (the Team section above)
 - [ ] TODO(owner): use-of-funds / milestones field checked against the live form
 - [ ] README status line ("live on Arc mainnet") and the ArcDraw repo link fixed locally; push before submitting
-- [ ] Not blocking: proof #6 (bury by wallet B) after 2026-09-19 17:23 UTC, hash in the README demo table and
-  `demo.buryByThirdPartyTx` in `deployments/arc-mainnet.json`, then pasted into the BUIDL if DoraHacks allows edits
-  ([CHECKLIST.md](CHECKLIST.md))
+- [x] Proof #6 (bury by wallet B, 2026-09-19 17:41 UTC) recorded in the README demo table and in
+  `demo.buryByThirdPartyTx` in `deployments/arc-mainnet.json` ([CHECKLIST.md](CHECKLIST.md))
 - [ ] Not blocking: demo video (optional) and an X/Farcaster profile

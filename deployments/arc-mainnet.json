@@ -32,7 +32,7 @@
     "hatchCTx": "0xa4958dae7f5a30af308421cbca6ff0f040574cf19a65f4b36515e1638168dd4b",
     "fulfillTx": "0xc25b2cafacdd289896af039e4bb2e560107167d4b73080e2a7373121fbf5922f",
     "socialFeedTx": "0x88d6128b3da61e5f87cc18ca9cf197985d89d425c20f51a6fa3140f6feb0d6e7",
-    "buryByThirdPartyTx": "",
+    "buryByThirdPartyTx": "0x0bfa8ebb9456b9cf20605861f6535e7a12669371ebe208b5d8cd9ae9fdea924d",
     "fulfillBTx": "0x697b20fff22e953cc0415926001ab1b9cb7a5adecd5a322214ec80c94452b2be",
     "fulfillCTx": "0x4107f04036f3c99ddd738e3a0594fc063fbb2dde114e0ca20a55812fe047c7e8"
   }
